@@ -1,4 +1,4 @@
-import { motion } from "motion/react";
+import { motion, type Variants } from "motion/react";
 
 interface VoiceOrbProps {
   state: "idle" | "listening" | "speaking";
@@ -7,7 +7,7 @@ interface VoiceOrbProps {
 }
 
 export function VoiceOrb({ state, voiceName, onStop }: VoiceOrbProps) {
-  const ringVariants = {
+  const ringVariants: Variants = {
     speaking: {
       scale: [0.8, 1.3],
       opacity: [0.45, 0],
