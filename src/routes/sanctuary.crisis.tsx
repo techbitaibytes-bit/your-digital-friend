@@ -79,13 +79,29 @@ function CrisisPage() {
     const ctrl = new AbortController();
     abortRef.current = ctrl;
 
-    const prompt = `The user is located in ${q}. They are a teen looking for mental health and neurodiverse support. List 5 to 8 real, specific local resources including crisis hotlines for their region, free or low-cost youth counseling centers, neurodiverse support groups, LGBTQ+ affirming services if available, and online options if local ones are limited. Format each result with Name, Type, Contact, and a one-sentence warm description.`;
+    const prompt = `You are a resource locator. The user is in "${q}" and is a teen/young adult seeking mental health and neurodiverse support.
+
+Return ONLY a valid JSON array (no prose, no markdown, no code fences) of 5-8 REAL, well-known resources serving that location. Prefer national crisis lines that work for that country + reputable youth/LGBTQ+/neurodiverse services. Do NOT invent organizations or numbers. If unsure of a local org, use a verified national one for that country.
+
+Each item must be an object with EXACTLY these keys:
+{
+  "name": "Organization name",
+  "type": "Crisis Hotline | Text Line | Counseling | Support Group | Online | LGBTQ+",
+  "phone": "Exact dialable number with country code if international, or empty string",
+  "website": "https://... or empty string",
+  "description": "One short warm sentence (max 20 words) about what they offer."
+}
+
+Output JUST the JSON array, starting with [ and ending with ].`;
 
     try {
       const res = await fetch("/api/chat", {
         method: "POST",
         headers: { "content-type": "application/json" },
-        body: JSON.stringify({ messages: [{ role: "user", content: prompt }] }),
+        body: JSON.stringify({
+          messages: [{ role: "user", content: prompt }],
+          systemPrompt: "You output only valid JSON when asked. Never wrap in markdown or add commentary.",
+        }),
         signal: ctrl.signal,
       });
 
@@ -104,7 +120,7 @@ function CrisisPage() {
         acc += decoder.decode(value, { stream: true });
         setResultsText(acc);
       }
-      setSupportItems(parseResourceCards(acc));
+      setSupportItems(extractJsonArray(acc));
     } catch (e) {
       if ((e as any).name === "AbortError") {
         setError("Search cancelled.");
