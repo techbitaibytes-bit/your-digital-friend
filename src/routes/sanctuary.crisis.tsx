@@ -15,70 +15,44 @@ export const Route = createFileRoute("/sanctuary/crisis")({
 type SupportItem = {
   name: string;
   type: string;
-  contact: string;
+  phone: string;
+  website: string;
   description: string;
 };
 
-function parseResourceCards(raw: string): SupportItem[] {
-  const blocks = raw
-    .split(/\n(?=\d+\.|\*\*[A-Z])/)
-    .map((block) => block.trim())
-    .filter(Boolean);
-
-  return blocks.map((block) => {
-    const nameMatch = block.match(/\*\*([^*]+)\*\*/);
-    const name = nameMatch ? nameMatch[1].trim() : "Support Resource";
-    const phoneMatch = block.match(/\(?\d{3}\)?[\s.-]\d{3}[\s.-]\d{4}/);
-    const phone = phoneMatch ? phoneMatch[0] : "";
-    const typeMatch = block.match(/\*\*[^*]+\*\*,?\s*([^,(]+)/);
-    const type = typeMatch ? typeMatch[1].trim() : "";
-    const description = block
-      .replace(/\*\*/g, "")
-      .replace(/^\d+\.\s*/, "")
-      .replace(nameMatch?.[0] ?? "", "")
-      .replace(phone, "")
-      .trim()
-      .split(".")
-      .find((segment) => segment.length > 30) ?? "";
-
-    return { name, type, contact: phone, description };
-  });
+function extractJsonArray(raw: string): SupportItem[] {
+  // Find first '[' and last ']' to isolate JSON even if model adds prose/code fences.
+  const start = raw.indexOf("[");
+  const end = raw.lastIndexOf("]");
+  if (start === -1 || end === -1 || end <= start) return [];
+  const slice = raw.slice(start, end + 1);
+  try {
+    const arr = JSON.parse(slice);
+    if (!Array.isArray(arr)) return [];
+    return arr
+      .map((r: any): SupportItem => ({
+        name: String(r?.name ?? "").trim(),
+        type: String(r?.type ?? "").trim(),
+        phone: String(r?.phone ?? "").trim(),
+        website: String(r?.website ?? "").trim(),
+        description: String(r?.description ?? "").trim(),
+      }))
+      .filter((r) => r.name && (r.phone || r.website));
+  } catch {
+    return [];
+  }
 }
 
 const SUPPORT_ICON_MAP: Record<string, ComponentType<{ className?: string }>> = {
   hotline: Phone,
+  crisis: Phone,
+  text: MessageSquare,
   counseling: Users,
   group: Users,
   online: Globe,
   lgbtq: Link2,
   default: MapPin,
 };
-
-function parseSupportItems(text: string): SupportItem[] {
-  return text
-    .split(/\n{2,}/)
-    .map((block) => block.trim())
-    .filter(Boolean)
-    .map((block) => {
-      const item: SupportItem = { name: "Unknown", type: "Unknown", contact: "", description: "" };
-      block.split(/\n/).forEach((line) => {
-        const parts = line.split(/:\s+/);
-        if (parts.length < 2) return;
-        const key = parts[0].trim().toLowerCase();
-        const value = parts.slice(1).join(": ").trim();
-        if (key.includes("name")) item.name = value;
-        else if (key.includes("type")) item.type = value;
-        else if (key.includes("contact")) item.contact = value;
-        else if (!item.description) item.description = value;
-        else item.description += ` ${value}`;
-      });
-      if (!item.description) {
-        const lines = block.split(/\n/).map((line) => line.trim()).filter(Boolean);
-        if (lines.length > 1) item.description = lines.slice(1).join(" ");
-      }
-      return item;
-    });
-}
 
 function CrisisPage() {
   const [city, setCity] = useState("");
@@ -105,13 +79,29 @@ function CrisisPage() {
     const ctrl = new AbortController();
     abortRef.current = ctrl;
 
-    const prompt = `The user is located in ${q}. They are a teen looking for mental health and neurodiverse support. List 5 to 8 real, specific local resources including crisis hotlines for their region, free or low-cost youth counseling centers, neurodiverse support groups, LGBTQ+ affirming services if available, and online options if local ones are limited. Format each result with Name, Type, Contact, and a one-sentence warm description.`;
+    const prompt = `You are a resource locator. The user is in "${q}" and is a teen/young adult seeking mental health and neurodiverse support.
+
+Return ONLY a valid JSON array (no prose, no markdown, no code fences) of 5-8 REAL, well-known resources serving that location. Prefer national crisis lines that work for that country + reputable youth/LGBTQ+/neurodiverse services. Do NOT invent organizations or numbers. If unsure of a local org, use a verified national one for that country.
+
+Each item must be an object with EXACTLY these keys:
+{
+  "name": "Organization name",
+  "type": "Crisis Hotline | Text Line | Counseling | Support Group | Online | LGBTQ+",
+  "phone": "Exact dialable number with country code if international, or empty string",
+  "website": "https://... or empty string",
+  "description": "One short warm sentence (max 20 words) about what they offer."
+}
+
+Output JUST the JSON array, starting with [ and ending with ].`;
 
     try {
       const res = await fetch("/api/chat", {
         method: "POST",
         headers: { "content-type": "application/json" },
-        body: JSON.stringify({ messages: [{ role: "user", content: prompt }] }),
+        body: JSON.stringify({
+          messages: [{ role: "user", content: prompt }],
+          systemPrompt: "You output only valid JSON when asked. Never wrap in markdown or add commentary.",
+        }),
         signal: ctrl.signal,
       });
 
@@ -130,7 +120,7 @@ function CrisisPage() {
         acc += decoder.decode(value, { stream: true });
         setResultsText(acc);
       }
-      setSupportItems(parseResourceCards(acc));
+      setSupportItems(extractJsonArray(acc));
     } catch (e) {
       if ((e as any).name === "AbortError") {
         setError("Search cancelled.");
@@ -265,23 +255,43 @@ function CrisisPage() {
                   {supportItems.map((item, index) => {
                     const Icon = iconForType(item.type);
                     return (
-                      <div key={`${item.name}-${index}`} className="rounded-2xl glass px-4 py-3 flex flex-col gap-1">
+                      <div key={`${item.name}-${index}`} className="rounded-2xl glass px-4 py-3">
                         <div className="flex items-start gap-3">
                           <Icon className="h-5 w-5 text-accent shrink-0 mt-0.5" />
-                          <div className="flex-1">
+                          <div className="flex-1 min-w-0">
                             <div className="font-semibold text-sm">{item.name}</div>
                             {item.type && <div className="text-xs text-accent">{item.type}</div>}
                             {item.description && (
-                              <div className="text-xs text-muted-foreground line-clamp-2">{item.description}</div>
+                              <div className="mt-1 text-xs text-muted-foreground">{item.description}</div>
                             )}
-                            {item.contact && (
-                              <a
-                                href={`tel:${item.contact.replace(/\D/g, "")}`}
-                                className="mt-1 text-xs font-mono text-accent hover:underline"
-                              >
-                                📞 {item.contact}
-                              </a>
-                            )}
+                            <div className="mt-2 flex flex-wrap gap-2">
+                              {item.phone && (
+                                <a
+                                  href={`tel:${item.phone.replace(/[^\d+]/g, "")}`}
+                                  className="inline-flex items-center gap-1.5 rounded-full bg-accent/15 px-3 py-1 text-xs font-mono text-accent hover:bg-accent/25 transition"
+                                >
+                                  <Phone className="h-3 w-3" /> {item.phone}
+                                </a>
+                              )}
+                              {item.website && (
+                                <a
+                                  href={item.website}
+                                  target="_blank"
+                                  rel="noreferrer"
+                                  className="inline-flex items-center gap-1.5 rounded-full bg-white/10 px-3 py-1 text-xs hover:bg-white/15 transition"
+                                >
+                                  <Globe className="h-3 w-3" /> Visit site
+                                </a>
+                              )}
+                              {item.phone && (
+                                <button
+                                  onClick={() => copyToClipboard(item.phone)}
+                                  className="inline-flex items-center gap-1.5 rounded-full bg-white/5 px-3 py-1 text-xs hover:bg-white/10 transition"
+                                >
+                                  Copy number
+                                </button>
+                              )}
+                            </div>
                           </div>
                         </div>
                       </div>
