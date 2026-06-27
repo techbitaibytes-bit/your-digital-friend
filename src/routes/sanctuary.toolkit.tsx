@@ -214,10 +214,7 @@ function Affirmations() {
       const res = await fetch("/api/chat", {
         method: "POST",
         headers: { "content-type": "application/json" },
-        body: JSON.stringify({
-          messages: [{ role: "user", content: "Generate 3 short, warm, personalized affirmations (one per line)." }],
-          systemPrompt: "You are EmpathAI. Produce three gentle affirmations, each on its own line. Keep them short and personal.",
-        }),
+        body: JSON.stringify({ preset: "affirmations" }),
       });
       if (!res.ok || !res.body) throw new Error("AI error");
       const reader = res.body.getReader();
