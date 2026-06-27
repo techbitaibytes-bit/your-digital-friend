@@ -545,7 +545,7 @@ function ChatPage() {
         simpleLanguageMode={simpleMode || simpleLanguageMode}
       />
 
-      <div className="flex-1 grid grid-cols-1 xl:grid-cols-[1fr_360px] gap-4 px-4 lg:px-6 py-4 pb-28 md:pb-4 min-h-0">
+      <div className="flex-1 grid grid-cols-1 xl:grid-cols-[1fr_360px] gap-4 px-4 lg:px-6 py-4 pb-24 md:pb-4 min-h-0">
         {/* Main chat column */}
         <div className="flex flex-col min-h-0 min-w-0">
           <div className="flex items-center gap-2 mb-3">
@@ -670,7 +670,7 @@ function ChatPage() {
             </div>
           )}
 
-          <GlassCard strong className="mt-3 flex-1 flex flex-col min-h-0 overflow-hidden shimmer-border">
+          <GlassCard strong className="mt-3 flex-1 flex flex-col min-h-0 overflow-hidden shimmer-border" style={{ height: 'calc(100vh - 220px)', minHeight: 0 }}>
             <h1 className="sr-only">AI Chat Sanctuary</h1>
             <div ref={scrollRef} className="flex-1 overflow-y-auto px-4 sm:px-8 py-6 flex flex-col gap-5">
               {messages.length === 0 && (
@@ -712,7 +712,7 @@ function ChatPage() {
                   >
                     <div
                       className={cn(
-                        "max-w-[85%] sm:max-w-[75%] rounded-2xl px-4 py-3 text-[15px] leading-relaxed",
+                        "max-w-[92%] sm:max-w-[78%] rounded-2xl px-4 py-3 text-[15px] leading-relaxed",
                         "border backdrop-blur-md",
                         m.role === "user"
                           ? "border-accent/40 bg-accent/15 text-foreground rounded-3xl rounded-tr-sm glow-soft"
@@ -865,7 +865,7 @@ function ChatPage() {
               </div>
             )}
 
-            <div className="border-t border-white/5 p-3">
+            <div className="border-t border-white/5 p-3" style={{ paddingBottom: 'env(safe-area-inset-bottom)' }}>
               <div className="flex items-end gap-2">
                 <textarea
                   ref={inputRef}
