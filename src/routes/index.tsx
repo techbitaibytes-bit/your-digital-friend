@@ -8,11 +8,13 @@ import { AnimatedBackground } from "@/components/AnimatedBackground";
 export const Route = createFileRoute("/")({
   head: () => ({
     meta: [
-      { title: "EmpathAI — A Safe Space That Sees You" },
-      { name: "description", content: "AI emotional companion for teens. Mood Mirror, healing toolkit, and crisis support. Always private, always available." },
-      { property: "og:title", content: "EmpathAI — Soft Cyber Sanctuary" },
-      { property: "og:description", content: "A private AI wellness sanctuary. Mood mirror, healing toolkit, and crisis support." },
+      { title: "EmpathAI — Private AI Companion for Teen Mental Wellness" },
+      { name: "description", content: "A calm, private AI sanctuary for teens and young adults. Mood Mirror, healing toolkit, and crisis support — always available, never stored on servers." },
+      { property: "og:title", content: "EmpathAI — Private AI Companion for Teen Mental Wellness" },
+      { property: "og:description", content: "A private AI wellness sanctuary with mood mirror, healing toolkit, and crisis support." },
+      { property: "og:url", content: "https://friendlypal.lovable.app/" },
     ],
+    links: [{ rel: "canonical", href: "https://friendlypal.lovable.app/" }],
   }),
   component: Landing,
 });
