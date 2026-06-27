@@ -572,10 +572,10 @@ function ChatPage() {
               <p className="mt-2 text-xs text-muted-foreground/80">{getMode(modeId).blurb}</p>
             </GlassCard>
             <div className="flex gap-2">
-              <GlowButton size="sm" variant="ghost" onClick={() => setShowHistory(!showHistory)} title="Past conversations">
+              <GlowButton size="sm" variant="ghost" aria-label="Past conversations" onClick={() => setShowHistory(!showHistory)} title="Past conversations">
                 <Clock className="h-4 w-4" />
               </GlowButton>
-              <GlowButton size="sm" variant="ghost" onClick={startNewConversation} title="New conversation">
+              <GlowButton size="sm" variant="ghost" aria-label="New conversation" onClick={startNewConversation} title="New conversation">
                 <Plus className="h-4 w-4" />
               </GlowButton>
             </div>
@@ -671,6 +671,7 @@ function ChatPage() {
           )}
 
           <GlassCard strong className="mt-3 flex-1 flex flex-col min-h-0 overflow-hidden shimmer-border">
+            <h1 className="sr-only">AI Chat Sanctuary</h1>
             <div ref={scrollRef} className="flex-1 overflow-y-auto px-4 sm:px-8 py-6 flex flex-col gap-5">
               {messages.length === 0 && (
                 <div className="m-auto text-center max-w-md">
@@ -869,6 +870,7 @@ function ChatPage() {
                 <textarea
                   ref={inputRef}
                   value={input}
+                  aria-label="Type a message to EmpathAI"
                   onChange={(e) => {
                     setInput(e.target.value);
                     e.target.style.height = "auto";
@@ -986,6 +988,7 @@ function OnboardingModal({
                 </label>
                 <input
                   value={name}
+                  aria-label="Your name"
                   onChange={(e) => setName(e.target.value)}
                   placeholder="Tell me your name"
                   className="mt-2 w-full rounded-xl border border-white/10 bg-white/5 px-4 py-2.5 text-foreground placeholder:text-muted-foreground/60 focus:outline-none focus:ring-2 focus:ring-primary"

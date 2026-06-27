@@ -231,12 +231,13 @@ function CrisisPage() {
           </GlassCard>
 
           <GlassCard className="p-6">
-            <h2 className="text-lg font-semibold tracking-tight">Find Support Near Me</h2>
+            <h2 className="text-lg font-semibold tracking-tight">Search by city or postal code</h2>
             <p className="mt-1 text-sm text-muted-foreground">Enter a city or postal code and the AI will suggest nearby teen-friendly resources.</p>
 
             <div className="mt-4 flex gap-3 flex-col sm:flex-row">
               <input
                 value={city}
+                aria-label="City or postal code"
                 onChange={(e) => setCity(e.target.value)}
                 placeholder="City or postal code"
                 className="flex-1 rounded-xl border border-white/10 bg-white/5 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-ring"

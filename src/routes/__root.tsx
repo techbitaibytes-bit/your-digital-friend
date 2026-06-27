@@ -78,8 +78,6 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
     meta: [
       { charSet: "utf-8" },
       { name: "viewport", content: "width=device-width, initial-scale=1" },
-      { title: "EmpathAI — A Safe Space That Sees You" },
-      { name: "description", content: "EmpathAI is a private AI emotional companion for teens and young adults. Mood Mirror, healing toolkit, and crisis support — always private, always available." },
       { name: "author", content: "EmpathAI Team" },
       { property: "og:site_name", content: "EmpathAI" },
       { property: "og:type", content: "website" },

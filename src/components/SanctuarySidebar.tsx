@@ -31,6 +31,7 @@ export function SanctuarySidebar() {
             <Link
               key={item.to}
               to={item.to}
+              aria-label={item.label}
               className={cn(
                 "relative flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm transition-all",
                 "lg:justify-start justify-center",
@@ -65,6 +66,7 @@ export function MobileBottomNav() {
           <Link
             key={item.to}
             to={item.to}
+            aria-label={item.label}
             className={cn(
               "flex flex-col items-center gap-0.5 rounded-xl px-3 py-1.5 text-[10px] transition-colors",
               active ? "text-foreground" : "text-muted-foreground",
