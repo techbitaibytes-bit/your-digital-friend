@@ -226,7 +226,7 @@ export const Route = createFileRoute("/api/chat")({
                 model: "llama-3.3-70b-versatile",
                 messages: groqMessages,
                 stream: !isJsonPreset,
-                max_tokens: 1024,
+                max_tokens: 512,
                 temperature: isJsonPreset ? 0.2 : 0.55,
                 ...(isJsonPreset ? { response_format: { type: "json_object" } } : {}),
               }),
