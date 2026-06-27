@@ -13,7 +13,7 @@ import { cn } from "@/lib/utils";
 export const Route = createFileRoute("/sanctuary/toolkit")({
   head: () => ({
     meta: [
-      { title: "Healing Toolkit — Breathing, Grounding & Task Help | EmpathAI" },
+      { title: "Healing Toolkit — Breathing & Grounding | EmpathAI" },
       { name: "description", content: "A pocket toolkit of grounding, box breathing, gratitude, affirmations, body scans, and ADHD-friendly task breakdowns — built for real moments." },
       { property: "og:title", content: "Healing Toolkit — EmpathAI" },
       { property: "og:description", content: "Grounding, breathing, affirmations, and task-breakdown tools for teens and young adults." },
