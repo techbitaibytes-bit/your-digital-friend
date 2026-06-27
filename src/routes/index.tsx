@@ -34,7 +34,7 @@ function Landing() {
               <div className="text-[11px] uppercase tracking-[0.24em] text-muted-foreground">Soft Twilight Sanctuary</div>
             </div>
           </div>
-          <Link to="/sanctuary/chat" className="text-sm text-muted-foreground hover:text-foreground transition">
+          <Link to="/sanctuary/chat" className="text-sm text-muted-foreground hover:text-foreground transition" aria-label="Enter the EmpathAI sanctuary">
             Enter sanctuary →
           </Link>
         </nav>
