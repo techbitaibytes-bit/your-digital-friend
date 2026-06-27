@@ -545,7 +545,7 @@ function ChatPage() {
         simpleLanguageMode={simpleMode || simpleLanguageMode}
       />
 
-      <div className="flex-1 grid grid-cols-1 xl:grid-cols-[1fr_360px] gap-4 px-4 lg:px-6 py-4 pb-28 md:pb-4 min-h-0">
+      <div className="flex-1 grid grid-cols-1 xl:grid-cols-[1fr_360px] gap-4 px-4 lg:px-6 py-4 pb-24 md:pb-4 min-h-0">
         {/* Main chat column */}
         <div className="flex flex-col min-h-0 min-w-0">
           <div className="flex items-center gap-2 mb-3">
