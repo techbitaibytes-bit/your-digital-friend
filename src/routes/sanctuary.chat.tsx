@@ -236,9 +236,11 @@ function ChatPage() {
     return () => clearInterval(t);
   }, []);
 
-  useEffect(() => {
+ useEffect(() => {
+  requestAnimationFrame(() => {
     scrollRef.current?.scrollTo({ top: scrollRef.current.scrollHeight, behavior: "smooth" });
-  }, [messages, streaming]);
+  });
+}, [messages, streaming]);
 
   useEffect(() => {
     if (!onboarded || showOnboarding || messages.length > 0) return;
