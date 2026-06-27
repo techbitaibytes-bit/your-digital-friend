@@ -225,9 +225,10 @@ export const Route = createFileRoute("/api/chat")({
               body: JSON.stringify({
                 model: "llama-3.3-70b-versatile",
                 messages: groqMessages,
-                stream: true,
+                stream: !isJsonPreset,
                 max_tokens: 1024,
-                temperature: 0.8,
+                temperature: isJsonPreset ? 0.2 : 0.8,
+                ...(isJsonPreset ? { response_format: { type: "json_object" } } : {}),
               }),
             }
           );
@@ -240,6 +241,15 @@ export const Route = createFileRoute("/api/chat")({
               { status: 502, headers: { "content-type": "application/json" } }
             );
           }
+
+          if (isJsonPreset) {
+            const data = await response.json();
+            const content = data?.choices?.[0]?.message?.content ?? "{}";
+            return new Response(content, {
+              headers: { "content-type": "application/json", "cache-control": "no-store" },
+            });
+          }
+
 
           const stream = new ReadableStream({
             async start(controller) {
