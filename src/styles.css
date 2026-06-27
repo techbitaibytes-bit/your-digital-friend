@@ -303,3 +303,16 @@
 @media (prefers-reduced-motion: reduce) {
   *, *::before, *::after { animation-duration: 0.001ms !important; animation-iteration-count: 1 !important; transition-duration: 0.001ms !important; }
 }
+
+[data-lovable-badge],
+[class*="lovable"],
+[id*="lovable"],
+a[href*="lovable.dev"],
+[class*="badge"],
+div[style*="z-index: 9999"],
+div[style*="z-index:9999"] {
+  display: none !important;
+  opacity: 0 !important;
+  visibility: hidden !important;
+  pointer-events: none !important;
+}
