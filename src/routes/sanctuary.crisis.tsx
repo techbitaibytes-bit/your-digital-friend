@@ -280,52 +280,82 @@ function CrisisPage() {
               {streaming && !resultsText && <div className="text-sm text-muted-foreground">Searching...</div>}
 
               {supportItems.length > 0 ? (
-                <div className="grid gap-3">
-                  {supportItems.map((item, index) => {
-                    const Icon = iconForType(item.type);
-                    return (
-                      <div key={`${item.name}-${index}`} className="rounded-2xl glass px-4 py-3">
-                        <div className="flex items-start gap-3">
-                          <Icon className="h-5 w-5 text-accent shrink-0 mt-0.5" />
-                          <div className="flex-1 min-w-0">
-                            <div className="font-semibold text-sm">{item.name}</div>
-                            {item.type && <div className="text-xs text-accent">{item.type}</div>}
-                            {item.description && (
-                              <div className="mt-1 text-xs text-muted-foreground">{item.description}</div>
-                            )}
-                            <div className="mt-2 flex flex-wrap gap-2">
-                              {item.phone && (
-                                <a
-                                  href={`tel:${item.phone.replace(/[^\d+]/g, "")}`}
-                                  className="inline-flex items-center gap-1.5 rounded-full bg-accent/15 px-3 py-1 text-xs font-mono text-accent hover:bg-accent/25 transition"
-                                >
-                                  <Phone className="h-3 w-3" /> {item.phone}
-                                </a>
+                <div className="rounded-2xl glass overflow-hidden">
+                  <Table>
+                    <TableHeader>
+                      <TableRow className="border-white/10 hover:bg-transparent">
+                        <TableHead className="w-[34%]">Resource</TableHead>
+                        <TableHead className="w-[18%]">Type</TableHead>
+                        <TableHead className="w-[24%]">Phone</TableHead>
+                        <TableHead className="w-[24%]">Website</TableHead>
+                      </TableRow>
+                    </TableHeader>
+                    <TableBody>
+                      {supportItems.map((item, index) => {
+                        const Icon = iconForType(item.type);
+                        const telHref = item.phone ? `tel:${item.phone.replace(/[^\d+]/g, "")}` : "";
+                        return (
+                          <TableRow key={`${item.name}-${index}`} className="border-white/10 align-top">
+                            <TableCell className="py-3">
+                              <div className="flex items-start gap-2">
+                                <Icon className="h-4 w-4 text-accent shrink-0 mt-0.5" />
+                                <div className="min-w-0">
+                                  <div className="font-semibold text-sm leading-tight">{item.name}</div>
+                                  {item.description && (
+                                    <div className="mt-1 text-xs text-muted-foreground">{item.description}</div>
+                                  )}
+                                </div>
+                              </div>
+                            </TableCell>
+                            <TableCell className="py-3">
+                              {item.type ? (
+                                <span className="inline-flex items-center rounded-full bg-accent/15 px-2 py-0.5 text-[11px] text-accent">
+                                  {item.type}
+                                </span>
+                              ) : (
+                                <span className="text-xs text-muted-foreground">—</span>
                               )}
-                              {item.website && (
+                            </TableCell>
+                            <TableCell className="py-3">
+                              {item.phone ? (
+                                <div className="flex flex-wrap items-center gap-1.5">
+                                  <a
+                                    href={telHref}
+                                    className="inline-flex items-center gap-1 rounded-full bg-accent/15 px-2.5 py-1 text-xs font-mono text-accent hover:bg-accent/25 transition"
+                                  >
+                                    <Phone className="h-3 w-3" /> {item.phone}
+                                  </a>
+                                  <button
+                                    onClick={() => copyToClipboard(item.phone)}
+                                    className="inline-flex items-center rounded-full bg-white/5 px-2 py-1 text-[11px] hover:bg-white/10 transition"
+                                    aria-label={`Copy ${item.name} phone`}
+                                  >
+                                    Copy
+                                  </button>
+                                </div>
+                              ) : (
+                                <span className="text-xs text-muted-foreground">—</span>
+                              )}
+                            </TableCell>
+                            <TableCell className="py-3">
+                              {item.website ? (
                                 <a
-                                 href={safeHref(item.website)}
+                                  href={safeHref(item.website)}
                                   target="_blank"
                                   rel="noreferrer"
-                                  className="inline-flex items-center gap-1.5 rounded-full bg-white/10 px-3 py-1 text-xs hover:bg-white/15 transition"
+                                  className="inline-flex items-center gap-1 rounded-full bg-white/10 px-2.5 py-1 text-xs hover:bg-white/15 transition break-all"
                                 >
-                                  <Globe className="h-3 w-3" /> Visit site
+                                  <Globe className="h-3 w-3 shrink-0" /> Visit
                                 </a>
+                              ) : (
+                                <span className="text-xs text-muted-foreground">—</span>
                               )}
-                              {item.phone && (
-                                <button
-                                  onClick={() => copyToClipboard(item.phone)}
-                                  className="inline-flex items-center gap-1.5 rounded-full bg-white/5 px-3 py-1 text-xs hover:bg-white/10 transition"
-                                >
-                                  Copy number
-                                </button>
-                              )}
-                            </div>
-                          </div>
-                        </div>
-                      </div>
-                    );
-                  })}
+                            </TableCell>
+                          </TableRow>
+                        );
+                      })}
+                    </TableBody>
+                  </Table>
                 </div>
               ) : (
                 !streaming && resultsText ? (
@@ -340,6 +370,7 @@ function CrisisPage() {
                   )
                 )
               )}
+
 
               <div className="rounded-2xl border border-white/10 bg-white/5 p-4 text-xs text-muted-foreground">
                 These suggestions are AI-generated. Always verify contact details before reaching out.
