@@ -670,7 +670,7 @@ function ChatPage() {
             </div>
           )}
 
-          <GlassCard strong className="mt-3 flex-1 flex flex-col min-h-0 overflow-hidden shimmer-border">
+          <GlassCard strong className="mt-3 flex-1 flex flex-col min-h-0 overflow-hidden shimmer-border" style={{ height: 'calc(100vh - 220px)', minHeight: 0 }}>
             <h1 className="sr-only">AI Chat Sanctuary</h1>
             <div ref={scrollRef} className="flex-1 overflow-y-auto px-4 sm:px-8 py-6 flex flex-col gap-5">
               {messages.length === 0 && (
