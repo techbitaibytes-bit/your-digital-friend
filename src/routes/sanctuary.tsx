@@ -7,12 +7,6 @@ export const Route = createFileRoute("/sanctuary")({
       throw redirect({ to: "/sanctuary/chat" });
     }
   },
-  head: () => ({
-    meta: [
-      { title: "Sanctuary — EmpathAI" },
-      { name: "description", content: "Your private wellness sanctuary: AI chat, mood mirror, healing toolkit, and crisis support." },
-    ],
-  }),
   component: SanctuaryLayout,
 });
 
