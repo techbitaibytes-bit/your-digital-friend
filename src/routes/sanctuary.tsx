@@ -12,9 +12,9 @@ export const Route = createFileRoute("/sanctuary")({
 
 function SanctuaryLayout() {
   return (
-    <div className="h-screen min-h-screen flex w-full overflow-hidden">
+    <div className="min-h-screen flex w-full">
       <SanctuarySidebar />
-      <div className="flex-1 flex flex-col min-w-0 min-h-0 h-full overflow-hidden">
+      <div className="flex-1 flex flex-col min-w-0">
         <Outlet />
       </div>
       <MobileBottomNav />
