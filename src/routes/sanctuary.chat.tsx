@@ -337,16 +337,9 @@ function ChatPage() {
           throw new Error(body || `Request failed (${res.status})`);
         }
 
-        const reader = res.body.getReader();
-        const decoder = new TextDecoder();
-        let acc = "";
-
-        while (true) {
-          const { value, done } = await reader.read();
-          if (done) break;
-          acc += decoder.decode(value, { stream: true });
-          setMessages((prev) => prev.map((m) => (m.id === assistantId ? { ...m, content: acc } : m)));
-        }
+        const data = await res.json();
+const content = data.content ?? "";
+setMessages((prev) => prev.map((m) => (m.id === assistantId ? { ...m, content } : m)));
 
         if (voiceEnabledRef.current) {
           setMessages((prev) => {
