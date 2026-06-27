@@ -1,11 +1,6 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { MODES, getCombinedSystemPrompt, type ModeId } from "@/lib/modes";
 
-// ---- Server-owned prompt presets (v2) ----
-// The server NEVER trusts a client-supplied system prompt. Clients pick a
-// preset by name and may pass narrowly-typed structured fields. Everything
-// that ends up in the system role is composed here.
-
 type ChatPreset = "chat" | "affirmations" | "task-breakdown" | "mood-insight" | "crisis-locator";
 
 interface IncomingMessage {
@@ -16,28 +11,21 @@ interface IncomingMessage {
 interface ChatBody {
   preset?: ChatPreset;
   messages?: IncomingMessage[];
-  // chat preset
   modeId?: ModeId;
   neuroMode?: boolean;
   simpleLanguage?: boolean;
   recentMood?: string;
   userName?: string;
-  // crisis-locator preset
   location?: string;
-  // task-breakdown preset
   task?: string;
-  // mood-insight preset
   moodSummary?: string;
 }
 
-// Caps to prevent quota abuse
 const MAX_MESSAGES = 30;
 const MAX_CONTENT_CHARS = 4000;
 const MAX_TOTAL_CHARS = 30000;
 const MAX_BODY_BYTES = 64 * 1024;
 
-// Very simple in-memory rate limit. Best-effort in a serverless runtime; it
-// at least slows abuse from a single warm instance.
 const RATE_BUCKET = new Map<string, { count: number; reset: number }>();
 const RATE_WINDOW_MS = 60_000;
 const RATE_MAX = 20;
@@ -55,7 +43,6 @@ function rateLimit(key: string): boolean {
 }
 
 function sanitizeShort(input: string, maxLen: number): string {
-  // Strip control characters and collapse whitespace; clip to maxLen.
   return input
     .replace(/[\u0000-\u001F\u007F]+/g, " ")
     .replace(/\s+/g, " ")
@@ -145,7 +132,6 @@ function buildSystemPrompt(body: ChatBody): { system: string; messages: Incoming
         messages: [{ role: "user", content: `Location: ${location}\n\nReturn the JSON object now.` }],
       };
     }
-
   }
 }
 
@@ -153,22 +139,21 @@ export const Route = createFileRoute("/api/chat")({
   server: {
     handlers: {
       POST: async ({ request }) => {
-       const apiKey = process.env.GROQ_API_KEY || "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";
+        // ⚠️ Keep your actual gsk_ key here — repo is private
+        const apiKey = process.env.GROQ_API_KEY || "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";
 
-        if (!apiKey) {
+        if (!apiKey || apiKey === "PASTE_YOUR_GSK_KEY_HERE") {
           return new Response(
             JSON.stringify({ error: "GROQ_API_KEY is missing on server" }),
             { status: 500, headers: { "content-type": "application/json" } }
           );
         }
 
-        // Body size cap
         const lenHeader = request.headers.get("content-length");
         if (lenHeader && Number(lenHeader) > MAX_BODY_BYTES) {
           return new Response("Payload too large", { status: 413 });
         }
 
-        // Per-IP rate limit (best effort)
         const ip =
           request.headers.get("cf-connecting-ip") ??
           request.headers.get("x-forwarded-for")?.split(",")[0]?.trim() ??
@@ -212,7 +197,6 @@ export const Route = createFileRoute("/api/chat")({
 
         const isJsonPreset = (body.preset ?? "chat") === "crisis-locator";
 
-
         try {
           const response = await fetch(
             "https://api.groq.com/openai/v1/chat/completions",
@@ -225,7 +209,7 @@ export const Route = createFileRoute("/api/chat")({
               body: JSON.stringify({
                 model: "llama-3.3-70b-versatile",
                 messages: groqMessages,
-                stream: !isJsonPreset,
+                stream: false,                              // ← FIXED: was !isJsonPreset
                 max_tokens: 512,
                 temperature: isJsonPreset ? 0.2 : 0.55,
                 ...(isJsonPreset ? { response_format: { type: "json_object" } } : {}),
@@ -242,48 +226,19 @@ export const Route = createFileRoute("/api/chat")({
             );
           }
 
-          if (isJsonPreset) {
-            const data = await response.json();
-            const content = data?.choices?.[0]?.message?.content ?? "{}";
-            return new Response(content, {
-              headers: { "content-type": "application/json", "cache-control": "no-store" },
-            });
-          }
+          // ── Unified JSON response for ALL presets ──────────────────────────
+          // No more streaming — always return { content: "..." }
+          // Frontend reads: const { content } = await res.json()
+          const data = await response.json();
+          const content = data?.choices?.[0]?.message?.content ?? "";
 
-
-          const stream = new ReadableStream({
-            async start(controller) {
-              const reader = response.body!.getReader();
-              const decoder = new TextDecoder();
-              try {
-                while (true) {
-                  const { done, value } = await reader.read();
-                  if (done) break;
-                  const chunk = decoder.decode(value, { stream: true });
-                  const lines = chunk.split("\n").filter((l) => l.startsWith("data: "));
-                  for (const line of lines) {
-                    const data = line.slice(6);
-                    if (data === "[DONE]") continue;
-                    try {
-                      const parsed = JSON.parse(data);
-                      const text = parsed.choices?.[0]?.delta?.content;
-                      if (text) controller.enqueue(new TextEncoder().encode(text));
-                    } catch {}
-                  }
-                }
-                controller.close();
-              } catch (err) {
-                controller.error(err);
-              }
-            },
-          });
-
-          return new Response(stream, {
+          return new Response(JSON.stringify({ content }), {
             headers: {
-              "content-type": "text/plain; charset=utf-8",
+              "content-type": "application/json",
               "cache-control": "no-store",
             },
           });
+
         } catch (err) {
           console.error("[chat] Unexpected fetch error:", err);
           return new Response(
@@ -291,7 +246,7 @@ export const Route = createFileRoute("/api/chat")({
             {
               status: 502,
               headers: { "content-type": "application/json" },
-            },
+            }
           );
         }
       },
