@@ -865,7 +865,7 @@ function ChatPage() {
               </div>
             )}
 
-            <div className="border-t border-white/5 p-3">
+            <div className="border-t border-white/5 p-3" style={{ paddingBottom: 'env(safe-area-inset-bottom)' }}>
               <div className="flex items-end gap-2">
                 <textarea
                   ref={inputRef}
