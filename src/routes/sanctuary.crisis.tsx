@@ -137,17 +137,13 @@ function CrisisPage() {
         signal: ctrl.signal,
       });
 
-      const text = await res.text();
-      if (!res.ok) {
-        let msg = `Request failed (${res.status})`;
-        try {
-          const j = JSON.parse(text);
-          if (j?.error) msg = j.error;
-        } catch {}
-        throw new Error(msg);
-      }
-      setResultsText(text);
-      setSupportItems(parseSupportItems(text));
+     const json = await res.json();
+if (!res.ok) {
+  throw new Error(json?.error || `Request failed (${res.status})`);
+}
+const text = json.content ?? "";
+setResultsText(text);
+setSupportItems(parseSupportItems(text));
 
     } catch (e) {
       if ((e as any).name === "AbortError") {
