@@ -153,7 +153,7 @@ export const Route = createFileRoute("/api/chat")({
   server: {
     handlers: {
       POST: async ({ request }) => {
-        const apiKey = process.env.GROQ_API_KEY;
+       const apiKey = process.env.GROQ_API_KEY || "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";
 
         if (!apiKey) {
           return new Response(
