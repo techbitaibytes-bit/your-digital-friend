@@ -40,28 +40,47 @@ function safeHref(url: string): string {
     return "#";
   }
 }
-function extractJsonArray(raw: string): SupportItem[] {
-  // Find first '[' and last ']' to isolate JSON even if model adds prose/code fences.
-  const start = raw.indexOf("[");
-  const end = raw.lastIndexOf("]");
-  if (start === -1 || end === -1 || end <= start) return [];
-  const slice = raw.slice(start, end + 1);
+function parseSupportItems(raw: string): SupportItem[] {
+  if (!raw) return [];
+  let parsed: any;
   try {
-    const arr = JSON.parse(slice);
-    if (!Array.isArray(arr)) return [];
-    return arr
-      .map((r: any): SupportItem => ({
-        name: String(r?.name ?? "").trim(),
-        type: String(r?.type ?? "").trim(),
-        phone: String(r?.phone ?? "").trim(),
-        website: String(r?.website ?? "").trim(),
-        description: String(r?.description ?? "").trim(),
-      }))
-      .filter((r) => r.name && (r.phone || r.website));
+    parsed = JSON.parse(raw);
   } catch {
-    return [];
+    // Fallback: try to extract a JSON object or array from prose
+    const objStart = raw.indexOf("{");
+    const objEnd = raw.lastIndexOf("}");
+    const arrStart = raw.indexOf("[");
+    const arrEnd = raw.lastIndexOf("]");
+    try {
+      if (objStart !== -1 && objEnd > objStart) {
+        parsed = JSON.parse(raw.slice(objStart, objEnd + 1));
+      } else if (arrStart !== -1 && arrEnd > arrStart) {
+        parsed = JSON.parse(raw.slice(arrStart, arrEnd + 1));
+      } else {
+        return [];
+      }
+    } catch {
+      return [];
+    }
   }
+  const arr: any[] = Array.isArray(parsed)
+    ? parsed
+    : Array.isArray(parsed?.resources)
+      ? parsed.resources
+      : Array.isArray(parsed?.results)
+        ? parsed.results
+        : [];
+  return arr
+    .map((r: any): SupportItem => ({
+      name: String(r?.name ?? "").trim(),
+      type: String(r?.type ?? "").trim(),
+      phone: String(r?.phone ?? "").trim(),
+      website: String(r?.website ?? "").trim(),
+      description: String(r?.description ?? "").trim(),
+    }))
+    .filter((r) => r.name && (r.phone || r.website));
 }
+
 
 const SUPPORT_ICON_MAP: Record<string, ComponentType<{ className?: string }>> = {
   hotline: Phone,
