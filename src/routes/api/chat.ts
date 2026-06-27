@@ -273,11 +273,14 @@ export const Route = createFileRoute("/api/chat")({
             },
           });
         } catch (err) {
-          const msg = err instanceof Error ? err.message : "Groq error";
-          return new Response(JSON.stringify({ error: msg }), {
-            status: 502,
-            headers: { "content-type": "application/json" },
-          });
+          console.error("[chat] Unexpected fetch error:", err);
+          return new Response(
+            JSON.stringify({ error: "AI service unavailable. Please try again later." }),
+            {
+              status: 502,
+              headers: { "content-type": "application/json" },
+            },
+          );
         }
       },
     },
