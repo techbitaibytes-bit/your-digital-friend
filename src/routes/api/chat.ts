@@ -1,7 +1,7 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { MODES, getCombinedSystemPrompt, type ModeId } from "@/lib/modes";
 
-// ---- Server-owned prompt presets ----
+// ---- Server-owned prompt presets (v2) ----
 // The server NEVER trusts a client-supplied system prompt. Clients pick a
 // preset by name and may pass narrowly-typed structured fields. Everything
 // that ends up in the system role is composed here.
@@ -154,10 +154,10 @@ export const Route = createFileRoute("/api/chat")({
     handlers: {
       POST: async ({ request }) => {
         const apiKey = process.env.GROQ_API_KEY;
+
         if (!apiKey) {
-          console.error("[chat] Missing GROQ_API_KEY environment variable");
           return new Response(
-            JSON.stringify({ error: "Server configuration error." }),
+            JSON.stringify({ error: "GROQ_API_KEY is missing on server" }),
             { status: 500, headers: { "content-type": "application/json" } }
           );
         }
