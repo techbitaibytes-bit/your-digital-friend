@@ -214,16 +214,7 @@ function MoodInsights({ moods }: { moods: MoodEntry[] }) {
         const res = await fetch("/api/chat", {
           method: "POST",
           headers: { "content-type": "application/json" },
-          body: JSON.stringify({
-            messages: [
-              {
-                role: "user",
-                content: `Based on this week's moods: ${moodyStr}. Give a one-sentence compassionate observation about their emotional week. Keep it under 15 words.`,
-              },
-            ],
-            systemPrompt:
-              "You are EmpathAI. Provide warm, brief insights about emotional patterns.",
-          }),
+          body: JSON.stringify({ preset: "mood-insight", moodSummary: moodyStr }),
         });
         if (!res.ok || !res.body) throw new Error("AI error");
         const reader = res.body.getReader();
