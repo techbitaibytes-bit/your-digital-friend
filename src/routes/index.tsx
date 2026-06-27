@@ -34,7 +34,7 @@ function Landing() {
               <div className="text-[11px] uppercase tracking-[0.24em] text-muted-foreground">Soft Twilight Sanctuary</div>
             </div>
           </div>
-          <Link to="/sanctuary/chat" className="text-sm text-muted-foreground hover:text-foreground transition">
+          <Link to="/sanctuary/chat" className="text-sm text-muted-foreground hover:text-foreground transition" aria-label="Enter the EmpathAI sanctuary">
             Enter sanctuary →
           </Link>
         </nav>
@@ -52,9 +52,7 @@ function Landing() {
             </div>
 
             <h1 className="text-5xl sm:text-6xl lg:text-7xl font-semibold tracking-[-0.04em] leading-[1.02]">
-              A soft place to
-              <br className="hidden sm:block" />
-              <span className="gradient-text">feel understood</span>.
+              A soft place to <span className="gradient-text">feel understood</span>.
             </h1>
 
             <p className="mt-7 text-base sm:text-lg text-muted-foreground max-w-2xl mx-auto leading-relaxed">
