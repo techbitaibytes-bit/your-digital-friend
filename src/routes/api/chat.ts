@@ -210,6 +210,9 @@ export const Route = createFileRoute("/api/chat")({
           ...built.messages.map((m) => ({ role: m.role, content: m.content })),
         ];
 
+        const isJsonPreset = (body.preset ?? "chat") === "crisis-locator";
+
+
         try {
           const response = await fetch(
             "https://api.groq.com/openai/v1/chat/completions",
