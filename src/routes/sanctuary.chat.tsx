@@ -236,11 +236,16 @@ function ChatPage() {
     return () => clearInterval(t);
   }, []);
 
- useEffect(() => {
+const messagesEndRef = useRef<HTMLDivElement>(null);
+
+useEffect(() => {
+  if (!messagesEndRef.current) return;
   requestAnimationFrame(() => {
-    scrollRef.current?.scrollTo({ top: scrollRef.current.scrollHeight, behavior: "smooth" });
+    requestAnimationFrame(() => {
+      messagesEndRef.current?.scrollIntoView({ behavior: "smooth", block: "end" });
+    });
   });
-}, [messages, streaming]);
+}, [messages]);
 
   useEffect(() => {
     if (!onboarded || showOnboarding || messages.length > 0) return;
@@ -778,6 +783,7 @@ setMessages((prev) => prev.map((m) => (m.id === assistantId ? { ...m, content } 
                   {error}
                 </div>
               )}
+                  <div ref={messagesEndRef} />
             </div>
 
             {voiceMode && (
