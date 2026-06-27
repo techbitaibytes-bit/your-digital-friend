@@ -6,6 +6,8 @@ import { TopBar } from "@/components/TopBar";
 import { GlassCard } from "@/components/GlassCard";
 import { GlowButton } from "@/components/GlowButton";
 import { AnimatedBackground } from "@/components/AnimatedBackground";
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
+
 
 export const Route = createFileRoute("/sanctuary/crisis")({
   head: () => ({
