@@ -139,8 +139,8 @@ export const Route = createFileRoute("/api/chat")({
   server: {
     handlers: {
       POST: async ({ request }) => {
-        // ⚠️ Keep your actual gsk_ key here — repo is private
-        const apiKey = process.env.GROQ_API_KEY || "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";
+        const apiKey = process.env.GROQ_API_KEY;
+
 
         if (!apiKey || apiKey === "PASTE_YOUR_GSK_KEY_HERE") {
           return new Response(
